@@ -1,0 +1,11 @@
+# Build artifacts
+sequential
+mpi_statistics
+*.o
+*.out
+
+# Editor/system files
+*~
+.DS_Store
+.vscode/
+.idea/
