@@ -299,14 +299,6 @@ results/validation.csv
 * Communication, synchronization, process management, virtualization, and network overhead can significantly influence distributed performance.
 * The experiment demonstrates the practical performance trade-offs involved in MPI-based distributed computation.
 
-## Technologies
-
-* **C**
-* **MPI**
-* **Open MPI**
-* **GCC**
-* **Linux**
-* **VMware Workstation**
 
 ## Project Deliverables
 
