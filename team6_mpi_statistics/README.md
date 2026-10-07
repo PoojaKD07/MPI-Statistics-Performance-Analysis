@@ -1,97 +1,120 @@
-# Team 6 — Distributed Dataset Statistics using MPI
+# Distributed Dataset Statistics Using MPI
 
-## Project Overview
+## Overview
 
-This project implements distributed dataset statistics using the Message Passing Interface (MPI). The program calculates the **sum, average, maximum, and minimum** of a large dataset using multiple MPI processes.
+This project implements distributed statistical analysis of large datasets using the **Message Passing Interface (MPI)**. The application computes the **sum, average, maximum, and minimum** of a numerically generated dataset and evaluates the performance of distributed execution across different dataset sizes and MPI process counts.
 
-The implementation includes a sequential reference program and an MPI distributed implementation. The MPI version uses `MPI_Scatterv` for data distribution, local computation on each process, and `MPI_Reduce` for global aggregation.
+The project includes both a **sequential implementation** and an **MPI-based parallel implementation**. The MPI implementation distributes the dataset using `MPI_Scatterv`, performs local statistical computation on individual processes, and combines the partial results using `MPI_Reduce`.
+
+The experiment evaluates execution time, speedup, and parallel efficiency to study the performance characteristics of MPI-based distributed computation.
 
 ## Objectives
 
-- Implement a sequential dataset-statistics program.
-- Implement the distributed version using MPI.
-- Distribute the dataset across multiple MPI processes.
-- Calculate global sum, average, maximum, and minimum.
-- Measure execution time for different dataset sizes and process counts.
-- Calculate speedup and parallel efficiency.
-- Analyze the effect of process count and workload size on performance.
+* Implement sequential dataset statistics computation.
+* Implement distributed statistics computation using MPI.
+* Distribute data among multiple MPI processes using `MPI_Scatterv`.
+* Aggregate local results using MPI reduction operations.
+* Evaluate execution time for different dataset sizes.
+* Analyze the effect of MPI process count on execution performance.
+* Calculate speedup and parallel efficiency.
+* Compare sequential and distributed execution behavior.
+
+## System Architecture
+
+The application follows a **data-parallel processing model**.
+
+```text
+                 Input Dataset
+                      │
+                      ▼
+              Root MPI Process
+                      │
+                 MPI_Scatterv
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       Process 0   Process 1   Process 2 ... Process N
+          │           │           │
+          ▼           ▼           ▼
+      Local Sum    Local Sum    Local Sum
+      Local Min    Local Min    Local Min
+      Local Max    Local Max    Local Max
+          │           │           │
+          └───────────┼───────────┘
+                      ▼
+                MPI_Reduce
+                      │
+                      ▼
+             Global Statistics
+```
+
+Each process works on a portion of the dataset. The local results are combined at the root process to obtain the final statistics.
+
+## MPI Implementation
+
+The MPI implementation uses the following operations:
+
+| MPI Operation            | Purpose                                  |
+| ------------------------ | ---------------------------------------- |
+| `MPI_Init`               | Initializes the MPI environment          |
+| `MPI_Comm_rank`          | Obtains the rank of each process         |
+| `MPI_Comm_size`          | Determines the total number of processes |
+| `MPI_Scatterv`           | Distributes dataset partitions           |
+| `MPI_Reduce` + `MPI_SUM` | Computes the global sum                  |
+| `MPI_Reduce` + `MPI_MAX` | Computes the global maximum              |
+| `MPI_Reduce` + `MPI_MIN` | Computes the global minimum              |
+| `MPI_Finalize`           | Terminates the MPI environment           |
+
+`MPI_Scatterv` is used instead of a fixed-size scatter because it supports uneven data partitions when the dataset size is not exactly divisible by the number of processes.
 
 ## Dataset
 
-The dataset is generated deterministically by the program:
+The dataset is generated deterministically using:
 
 ```c
 data[i] = (double)((i % 1000) + 1);
 ```
 
-Therefore, the generated values repeat from 1 through 1000, providing reproducible results.
+This produces a repeating sequence of values from `1` to `1000`.
 
-| Dataset Size | Expected Sum | Average | Maximum | Minimum |
-|---:|---:|---:|---:|---:|
-| 1,000,000 | 500,500,000.00 | 500.500000 | 1000.00 | 1.00 |
-| 5,000,000 | 2,502,500,000.00 | 500.500000 | 1000.00 | 1.00 |
-| 10,000,000 | 5,005,000,000.00 | 500.500000 | 1000.00 | 1.00 |
+| Dataset Size |              Sum |    Average | Maximum | Minimum |
+| -----------: | ---------------: | ---------: | ------: | ------: |
+|    1,000,000 |   500,500,000.00 | 500.500000 | 1000.00 |    1.00 |
+|    5,000,000 | 2,502,500,000.00 | 500.500000 | 1000.00 |    1.00 |
+|   10,000,000 | 5,005,000,000.00 | 500.500000 | 1000.00 |    1.00 |
 
-## MPI Design
+The deterministic generation method allows the output of the sequential and MPI implementations to be compared against known statistical values.
 
-1. MPI is initialized and each process obtains its rank and the total process count.
-2. The root process generates the complete dataset.
-3. `MPI_Scatterv` distributes the dataset, supporting uneven partitions.
-4. Each process calculates its local sum, maximum, and minimum.
-5. `MPI_Reduce` with `MPI_SUM` combines local sums.
-6. `MPI_Reduce` with `MPI_MAX` combines local maxima.
-7. `MPI_Reduce` with `MPI_MIN` combines local minima.
-8. The root process calculates the global average and reports the execution time.
+## Experimental Environment
 
-## Repository Structure
-
-```text
-team6-mpi-statistics/
-├── README.md
-├── .gitignore
-├── src/
-│   ├── sequential.c
-│   └── mpi_statistics.c
-├── data/
-│   └── README.md
-├── results/
-│   ├── results.csv
-│   ├── raw_output.txt
-│   ├── result_summary.txt
-│   └── validation.csv
-├── graphs/
-│   ├── execution_time_comparison.png
-│   ├── execution_time_1000000.png
-│   ├── execution_time_5000000.png
-│   ├── execution_time_10000000.png
-│   ├── speedup_comparison.png
-│   └── efficiency_comparison.png
-└── report/
-    ├── report.md
-    └── Team6_MPI_Statistics_Report.pdf
-```
-
-## Software and Experimental Environment
-
-- Ubuntu Linux virtual machines
-- 1 master VM and 3 worker VMs
-- VMware Workstation
-- GCC
-- Open MPI
-- `mpicc`
-- MPI process counts: 1, 2, 3, and 4
-- Dataset sizes: 1,000,000; 5,000,000; and 10,000,000
+| Component        | Configuration              |
+| ---------------- | -------------------------- |
+| Operating System | Ubuntu Linux               |
+| Virtualization   | VMware Workstation         |
+| MPI Environment  | Open MPI                   |
+| Compiler         | GCC                        |
+| MPI Compiler     | `mpicc`                    |
+| Architecture     | Multi-node MPI environment |
+| Nodes            | 1 Master + 3 Worker VMs    |
+| MPI Processes    | 1, 2, 3, 4                 |
+| Dataset Sizes    | 1M, 5M, 10M elements       |
 
 ## Compilation
 
-From the project root:
+### Sequential Program
 
 ```bash
 gcc -O2 src/sequential.c -o sequential
+```
+
+### MPI Program
+
+```bash
 mpicc -O2 src/mpi_statistics.c -o mpi_statistics
 ```
 
-## Sequential Execution
+## Execution
+
+### Sequential
 
 ```bash
 ./sequential 1000000
@@ -99,15 +122,15 @@ mpicc -O2 src/mpi_statistics.c -o mpi_statistics
 ./sequential 10000000
 ```
 
-## MPI Execution
+### MPI
 
-Single-process validation:
+Single-process execution:
 
 ```bash
 mpirun -np 1 ./mpi_statistics 1000000
 ```
 
-For a multi-node cluster, place the MPI executable at the same path on the participating nodes and use an MPI hostfile. Example:
+Multi-process execution using a hostfile:
 
 ```text
 master slots=1
@@ -116,114 +139,184 @@ worker2 slots=1
 worker3 slots=1
 ```
 
-Run with four processes:
+Example:
 
 ```bash
 mpirun -np 4 --hostfile hosts sh -c '$HOME/team6_mpi_statistics/mpi_statistics 1000000'
 ```
 
-The same command pattern is used for the other dataset sizes and process counts.
+The same execution procedure is used for the remaining dataset sizes and process counts.
 
-## Experimental Parameters
+## Experimental Configuration
 
-### Dataset Sizes
+The experiment evaluates three dataset sizes with four MPI process configurations.
 
-- 1,000,000
-- 5,000,000
-- 10,000,000
+| Parameter     | Values     |
+| ------------- | ---------- |
+| Dataset Size  | 1,000,000  |
+|               | 5,000,000  |
+|               | 10,000,000 |
+| MPI Processes | 1          |
+|               | 2          |
+|               | 3          |
+|               | 4          |
 
-### MPI Process Counts
+## Performance Results
 
-- 1
-- 2
-- 3
-- 4
+The following execution times were obtained during the experiment.
 
-## Recorded Results
+| Dataset Size | Processes | MPI Execution Time (s) |
+| -----------: | --------: | ---------------------: |
+|    1,000,000 |         1 |               0.003491 |
+|    1,000,000 |         2 |               0.002974 |
+|    1,000,000 |         3 |                      — |
+|    1,000,000 |         4 |               0.012930 |
+|    5,000,000 |         1 |               0.016881 |
+|    5,000,000 |         2 |               0.035339 |
+|    5,000,000 |         3 |               0.043528 |
+|    5,000,000 |         4 |               0.051752 |
+|   10,000,000 |         1 |               0.039017 |
+|   10,000,000 |         2 |               0.064401 |
+|   10,000,000 |         3 |               0.084561 |
+|   10,000,000 |         4 |               0.095681 |
 
-| Dataset | Processes | MPI Execution Time (s) |
-|---:|---:|---:|
-| 1,000,000 | 1 | 0.003491 |
-| 1,000,000 | 2 | 0.002974 |
-| 1,000,000 | 3 | Not recorded |
-| 1,000,000 | 4 | 0.012930 |
-| 5,000,000 | 1 | 0.016881 |
-| 5,000,000 | 2 | 0.035339 |
-| 5,000,000 | 3 | 0.043528 |
-| 5,000,000 | 4 | 0.051752 |
-| 10,000,000 | 1 | 0.039017 |
-| 10,000,000 | 2 | 0.064401 |
-| 10,000,000 | 3 | 0.084561 |
-| 10,000,000 | 4 | 0.095681 |
+## Performance Analysis
 
-The 1,000,000-element, 3-process timing was not present in the recorded experiment data and is intentionally left unavailable rather than fabricated.
+### Execution Time
 
-## Performance Metrics
+The measured execution time varies with both dataset size and process count.
 
-Speedup:
+For the 1,000,000-element dataset, execution using two processes produced a lower measured time than the single-process configuration. For the larger 5,000,000- and 10,000,000-element datasets, the measured execution time increased as the number of MPI processes increased.
+
+This behavior is influenced by factors such as:
+
+* MPI communication overhead
+* Data distribution using `MPI_Scatterv`
+* Reduction and synchronization overhead
+* Process startup overhead
+* Inter-VM network communication
+* Virtualization overhead
+
+Therefore, increasing the number of processes does not necessarily result in lower elapsed time, particularly when communication and virtualization costs become significant compared with the computation.
+
+### Speedup
+
+Speedup is calculated as:
 
 ```text
-Speedup = T1 / Tp
+Speedup = T₁ / Tₚ
 ```
 
-Efficiency:
+where:
+
+* `T₁` = execution time using one process
+* `Tₚ` = execution time using `p` processes
+
+A speedup greater than 1 indicates that the parallel configuration completed faster than the one-process reference configuration.
+
+### Parallel Efficiency
+
+Parallel efficiency is calculated as:
 
 ```text
 Efficiency = (Speedup / p) × 100
 ```
 
-The calculated values are stored in `results/results.csv` and visualized in the `graphs/` directory.
+where `p` is the number of MPI processes.
 
-## Results and Analysis
+Efficiency indicates how effectively the available processes contribute to the computation. Lower efficiency can result from communication, synchronization, workload distribution, and system overhead.
 
-The recorded results show that the 1,000,000-element workload was faster with two processes than with one process. For the recorded 5,000,000- and 10,000,000-element runs, increasing the process count increased measured elapsed time.
-
-The results demonstrate that parallel execution is affected by communication, synchronization, process startup, and virtualization overhead. Therefore, increasing the number of MPI processes does not guarantee a proportional reduction in execution time for every workload.
-
-The graphs provide visual comparisons of execution time, speedup, and efficiency across the tested configurations.
-
-## Correctness
-
-The generated dataset has deterministic statistics. The recorded validation results confirm:
-
-- Average = 500.500000
-- Maximum = 1000.00
-- Minimum = 1.00
-
-The expected sums are:
-
-- 1,000,000 elements = 500,500,000.00
-- 5,000,000 elements = 2,502,500,000.00
-- 10,000,000 elements = 5,005,000,000.00
-
-## Report
-
-A formatted project report is provided in `report/`:
-
-- `report.md`
-- `Team6_MPI_Statistics_Report.pdf`
-
-## GitHub Setup
-
-Create an empty GitHub repository named:
+## Project Structure
 
 ```text
-team6-mpi-statistics
+team6-mpi-statistics/
+│
+├── README.md
+├── .gitignore
+│
+├── src/
+│   ├── sequential.c
+│   └── mpi_statistics.c
+│
+├── data/
+│   └── README.md
+│
+├── results/
+│   ├── results.csv
+│   ├── raw_output.txt
+│   ├── result_summary.txt
+│   └── validation.csv
+│
+├── graphs/
+│   ├── execution_time_comparison.png
+│   ├── execution_time_1000000.png
+│   ├── execution_time_5000000.png
+│   ├── execution_time_10000000.png
+│   ├── speedup_comparison.png
+│   └── efficiency_comparison.png
+│
+└── report/
+    ├── report.md
+    └── Team6_MPI_Statistics_Report.pdf
 ```
 
-Then run the following commands from the project root:
+## Results and Visualizations
 
-```bash
-git init
-git add .
-git commit -m "Complete Team 6 MPI dataset statistics project"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/team6-mpi-statistics.git
-git push -u origin main
+Performance visualizations are provided in the `graphs/` directory.
+
+The graphs include:
+
+* Execution-time comparison across process counts
+* Execution time for each dataset size
+* Speedup comparison
+* Parallel efficiency comparison
+
+Numerical results and calculated performance metrics are available in:
+
+```text
+results/results.csv
 ```
 
-Replace `YOUR_USERNAME` in the `git remote add origin` command with the GitHub username of the account that owns the repository.
+Raw experimental outputs are preserved in:
 
-## Project Status
+```text
+results/raw_output.txt
+```
 
-The repository contains the source implementation, experimental results, validation data, performance graphs, and project report required for the Team 6 distributed dataset statistics experiment.
+Validation data is available in:
+
+```text
+results/validation.csv
+```
+
+## Key Observations
+
+* MPI enables the dataset statistics computation to be distributed across multiple processes.
+* `MPI_Scatterv` provides flexible data distribution across processes.
+* `MPI_Reduce` simplifies global aggregation of local statistical results.
+* Larger datasets provide a greater computational workload for evaluating parallel execution.
+* Increasing the number of MPI processes does not automatically guarantee improved execution time.
+* Communication, synchronization, process management, virtualization, and network overhead can significantly influence distributed performance.
+* The experiment demonstrates the practical performance trade-offs involved in MPI-based distributed computation.
+
+## Technologies
+
+* **C**
+* **MPI**
+* **Open MPI**
+* **GCC**
+* **Linux**
+* **VMware Workstation**
+
+## Project Deliverables
+
+The repository contains:
+
+* Sequential implementation
+* MPI distributed implementation
+* Experimental result data
+* Validation data
+* Performance calculations
+* Execution-time graphs
+* Speedup and efficiency graphs
+* Complete project report
