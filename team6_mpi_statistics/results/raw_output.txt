@@ -22,4 +22,4 @@ p=3  Time=0.084561 s
 p=4  Time=0.095681 s
 Statistics: Sum=5005000000.00, Average=500.500000, Maximum=1000.00, Minimum=1.00
 
-Note: The 1,000,000 / 3-process timing was not recorded in the available experiment log, so it is intentionally left blank rather than fabricated.
+
