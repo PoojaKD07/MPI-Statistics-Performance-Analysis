@@ -186,48 +186,4 @@ The results demonstrate that parallel execution is affected by communication, sy
 
 The graphs provide visual comparisons of execution time, speedup, and efficiency across the tested configurations.
 
-## Correctness
 
-The generated dataset has deterministic statistics. The recorded validation results confirm:
-
-- Average = 500.500000
-- Maximum = 1000.00
-- Minimum = 1.00
-
-The expected sums are:
-
-- 1,000,000 elements = 500,500,000.00
-- 5,000,000 elements = 2,502,500,000.00
-- 10,000,000 elements = 5,005,000,000.00
-
-## Report
-
-A formatted project report is provided in `report/`:
-
-- `report.md`
-- `Team6_MPI_Statistics_Report.pdf`
-
-## GitHub Setup
-
-Create an empty GitHub repository named:
-
-```text
-team6-mpi-statistics
-```
-
-Then run the following commands from the project root:
-
-```bash
-git init
-git add .
-git commit -m "Complete Team 6 MPI dataset statistics project"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/team6-mpi-statistics.git
-git push -u origin main
-```
-
-Replace `YOUR_USERNAME` in the `git remote add origin` command with the GitHub username of the account that owns the repository.
-
-## Project Status
-
-The repository contains the source implementation, experimental results, validation data, performance graphs, and project report required for the Team 6 distributed dataset statistics experiment.
