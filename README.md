@@ -186,4 +186,18 @@ The results demonstrate that parallel execution is affected by communication, sy
 
 The graphs provide visual comparisons of execution time, speedup, and efficiency across the tested configurations.
 
+## Sequential vs. MPI Performance Comparison
+
+| Dataset Size | Sequential Time (s) |  MPI Time (s)        | Comparison                  |
+| -----------: | ------------------: | -------------------: | --------------------------- |
+|    1,000,000 |            0.000799 |        0.002974      | Sequential faster           |
+|    5,000,000 |            0.041362 |        0.016881      | MPI Time faster             |
+|   10,000,000 |            0.007680 |        0.039017      | Sequential faster           |
+
+
+## Conclusion
+
+Sequential execution is faster for 1 million and 10 million elements, while MPI is faster for 5 million elements. This shows that MPI performance depends on dataset size and communication overhead.
+
+
 
