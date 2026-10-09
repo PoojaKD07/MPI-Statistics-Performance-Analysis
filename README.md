@@ -8,13 +8,13 @@ The implementation includes a sequential reference program and an MPI distribute
 
 ## Objectives
 
-- Implement a sequential dataset-statistics program.
-- Implement the distributed version using MPI.
-- Distribute the dataset across multiple MPI processes.
-- Calculate global sum, average, maximum, and minimum.
-- Measure execution time for different dataset sizes and process counts.
-- Calculate speedup and parallel efficiency.
-- Analyze the effect of process count and workload size on performance.
+1.Implement a sequential dataset-statistics program.
+2.Implement the distributed version using MPI.
+3. Distribute the dataset across multiple MPI processes.
+4.Calculate global sum, average, maximum, and minimum.
+5.Measure execution time for different dataset sizes and process counts.
+6.Calculate speedup and parallel efficiency.
+7.Analyze the effect of process count and workload size on performance.
 
 ## Dataset
 
