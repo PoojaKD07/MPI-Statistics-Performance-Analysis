@@ -1,4 +1,4 @@
-# Team 6 — Distributed Dataset Statistics using MPI
+# Distributed Dataset Statistics using MPI
 
 ## Project Overview
 
